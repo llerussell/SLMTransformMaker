@@ -11,12 +11,12 @@ msg_title = 'Transform procedure';
 uiwait(msgbox(msg, msg_title));
 
 % Load images
-[file_name, path_name] = uigetfile('*.tif*', 'Select the fixed image (SLM targets)');
+[file_name, path_name] = uigetfile('*.*', 'Select the fixed image (SLM targets)');
 cd(path_name)
 file_path = [path_name filesep file_name];
 fixed_image = imread(file_path);
 
-[file_name, path_name] = uigetfile('*.tif*', 'Select the moving image (2P image)');
+[file_name, path_name] = uigetfile('*.*', 'Select the moving image (2P image)');
 file_path = [path_name filesep file_name];
 moving_image = imread(file_path);
 
@@ -29,7 +29,7 @@ moving_image = uint8(moving_image/max(max(moving_image))*255);
 % Use control points GUI to select reference points
 [moving_points, fixed_points] = cpselect(moving_image, fixed_image, 'wait',true);
 
-% Make the transform (projective or affine?)
+% Make the transform (projective or affine)
 tform = fitgeotrans(moving_points, fixed_points, 'projective');
 
 % Apply transform to moving image
