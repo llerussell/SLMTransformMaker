@@ -27,10 +27,10 @@ moving_image = double(moving_image);
 moving_image = uint8(moving_image/max(max(moving_image))*255);
 
 % Use control points GUI to select reference points
-[movingPoints, fixedPoints] = cpselect(moving_image, fixed_image, 'wait',true);
+[moving_points, fixed_points] = cpselect(moving_image, fixed_image, 'wait',true);
 
 % Make the transform (projective or affine?)
-tform = fitgeotrans(movingPoints, fixedPoints, 'projective');
+tform = fitgeotrans(moving_points, fixed_points, 'projective');
 
 % Apply transform to moving image
 r_fixed = imref2d(size(fixed_image));
@@ -41,7 +41,7 @@ before_tform_overlay = imfuse(fixed_image, moving_image, 'ColorChannels','red-cy
 after_tform_overlay = imfuse(fixed_image, registered_image, 'ColorChannels','red-cyan');
 
 % Display overlay images
-figure('Position',[100 100 800 400], 'menubar', 'none');
+figure('Position',[100 100 800 400], 'MenuBar','none');
 subplot(1,2,1)
 imshow(before_tform_overlay)
 title('Before')
