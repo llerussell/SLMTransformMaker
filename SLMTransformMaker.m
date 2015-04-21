@@ -1,55 +1,55 @@
 function SLMTransformMaker
 % Lloyd Russell 20150321
 
-% Explain the procedure
-msg = {
-    '1. Make 3 spot phase mask with no transform, load onto SLM'
-    '2. Burn 3 spots onto fluorescent slide, image with 2P'
-    '3. Register the SLM targets image and the 2P image'
+% explain the procedure
+message = {
+    '1. First, calibrate uncaging galvos using zero order spot'
+    '2. Burn multiple spots onto fluorescent slide (simultaneously or sequentially), image with 2P'
+    '3. Register all SLM targets and the 2P burnt spot image'
     '4. Use the saved transform when making future phase masks'};
 msg_title = 'Transform procedure';
-uiwait(msgbox(msg, msg_title));
+uiwait(msgbox(message,msg_title));
 
-% Load images
-[file_name, path_name] = uigetfile('*.*', 'Select the fixed image (SLM targets)');
+% load images
+[file_name, path_name] = uigetfile('*.tif*', 'Select the fixed image (SLM targets)');
 cd(path_name)
-file_path = [path_name filesep file_name];
-fixed_image = imread(file_path);
+filepath = [path_name filesep file_name];
+fixedImg = imread(filepath);
 
-[file_name, path_name] = uigetfile('*.*', 'Select the moving image (2P image)');
-file_path = [path_name filesep file_name];
-moving_image = imread(file_path);
+[file_name, path_name] = uigetfile('*.tif*', 'Select the moving image (2P image)');
+filepath  = [path_name filesep file_name];
+movingImg = imread(filepath);
 
-% Convert images for display
-fixed_image = double(fixed_image);
-fixed_image = uint8(fixed_image/max(max(fixed_image))*255);
-moving_image = double(moving_image);
-moving_image = uint8(moving_image/max(max(moving_image))*255);
+% convert images for display
+fixedImg  = double(fixedImg);
+movingImg = double(movingImg);
+fixedImg  = uint8(fixedImg/max(max(fixedImg))*255);
+movingImg = uint8(movingImg/max(max(movingImg))*255);
 
-% Use control points GUI to select reference points
-[moving_points, fixed_points] = cpselect(moving_image, fixed_image, 'wait',true);
+% use control points GUI to select reference points
+[movingPoints, fixedPoints] = cpselect(movingImg, fixedImg, 'wait',true);
 
-% Make the transform (projective or affine)
-tform = fitgeotrans(moving_points, fixed_points, 'projective');
+% make the transform (projective or affine?)
+tform = fitgeotrans(movingPoints, fixedPoints, 'affine');
 
-% Apply transform to moving image
-r_fixed = imref2d(size(fixed_image));
-registered_image = imwarp(moving_image, tform, 'FillValues',255, 'OutputView',r_fixed);
+% apply transform to moving image
+Rfixed = imref2d(size(fixedImg));
+registeredImg = imwarp(movingImg, tform, 'FillValues',255, 'OutputView',Rfixed);
 
-% Make overlay images for visualisation
-before_tform_overlay = imfuse(fixed_image, moving_image, 'ColorChannels','red-cyan');
-after_tform_overlay = imfuse(fixed_image, registered_image, 'ColorChannels','red-cyan');
+% make overlay images for visualisation
+beforeTransformOverlay = imfuse(fixedImg, movingImg, 'ColorChannels','red-cyan');
+afterTransformOverlay  = imfuse(fixedImg, registeredImg, 'ColorChannels','red-cyan');
 
-% Display overlay images
-figure('Position',[100 100 800 400], 'MenuBar','none');
+% display overlay images
+figure('Position',[100 100 800 400], 'menubar', 'none');
 subplot(1,2,1)
-imshow(before_tform_overlay)
+imshow(beforeTransformOverlay)
 title('Before')
 subplot(1,2,2)
-imshow(after_tform_overlay)
+imshow(afterTransformOverlay)
 title('After')
 
-% Save the transform
+% save the transform
 [file_name, path_name] = uiputfile('*.mat', 'Save the transform file');
-file_path = [path_name filesep file_name];
-save(file_path, 'tform');
+filepath = [path_name filesep file_name];
+save(filepath, 'tform');
