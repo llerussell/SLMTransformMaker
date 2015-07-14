@@ -30,26 +30,34 @@ movingImg = uint8(movingImg/max(max(movingImg))*255);
 [movingPoints, fixedPoints] = cpselect(movingImg, fixedImg, 'wait',true);
 
 % make the transform (projective or affine?)
-tform = fitgeotrans(movingPoints, fixedPoints, 'affine');
+tform = fitgeotrans(movingPoints, fixedPoints, 'projective');
+inv_tform = fitgeotrans(fixedPoints, movingPoints, 'projective');
 
 % apply transform to moving image
 Rfixed = imref2d(size(fixedImg));
 registeredImg = imwarp(movingImg, tform, 'FillValues',255, 'OutputView',Rfixed);
+registeredImgInv = imwarp(fixedImg, inv_tform, 'FillValues',255, 'OutputView',Rfixed);
 
 % make overlay images for visualisation
-beforeTransformOverlay = imfuse(fixedImg, movingImg, 'ColorChannels','red-cyan');
-afterTransformOverlay  = imfuse(fixedImg, registeredImg, 'ColorChannels','red-cyan');
+beforeTransformOverlay = imfuse(fixedImg, movingImg, 'ColorChannels',[2 1 2]);
+afterTransformOverlay  = imfuse(fixedImg, registeredImg, 'ColorChannels',[2 1 2]);
+afterTransformOverlay2 = imfuse(registeredImgInv, movingImg, 'ColorChannels',[2 1 2]);
 
 % display overlay images
-figure('Position',[100 100 800 400], 'menubar', 'none');
-subplot(1,2,1)
+figure('Position',[100 100 800 400]);
+subplot('position', [0.00+0.003 0 0.33 1])
 imshow(beforeTransformOverlay)
-title('Before')
-subplot(1,2,2)
+title('Raw pixel space (before transform)')
+subplot('position', [0.33+0.006 0 0.33 1])
 imshow(afterTransformOverlay)
-title('After')
+title('SLM space (after transform)')
+subplot('position', [0.66+0.009 0 0.33 1])
+imshow(afterTransformOverlay2)
+title('2P space (after transform)')
 
-% save the transform
+% save the transform and images
 [file_name, path_name] = uiputfile('*.mat', 'Save the transform file');
 filepath = [path_name filesep file_name];
 save(filepath, 'tform');
+imwrite(afterTransformOverlay, strrep(filepath, '.mat', '_SLMspace.tif'));
+imwrite(afterTransformOverlay2, strrep(filepath, '.mat', '_2Pspace.tif'));
