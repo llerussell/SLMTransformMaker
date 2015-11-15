@@ -1,16 +1,16 @@
-function SLMTransformMaker
+% SLMTransformMaker
 % Lloyd Russell 20150321
 
 % explain the procedure
 message = {
-    '1. First, calibrate uncaging galvos using zero order spot'
-    '2. Burn multiple spots onto fluorescent slide (simultaneously or sequentially), image with 2P'
-    '3. Register all SLM targets and the 2P burnt spot image'
-    '4. Use the saved transform when making future phase masks'};
+    '1. Calibrate uncaging galvos using zero order spot. This will ensure the centre of SLM space is the centre of 2P imaging space.'
+    '2. Burn multiple spots onto fluorescent slide (simultaneously or sequentially) for ~60 seconds, take a 2P image of the burnt slide'
+    '3. Register the SLM targets image and the 2P burnt spot image'
+    '4. Use the saved transform when making all future SLM phase masks'};
 msg_title = 'Transform procedure';
 uiwait(msgbox(message,msg_title));
 
-% load images
+% load images to register
 [file_name, path_name] = uigetfile('*.tif*', 'Select the fixed image (SLM targets)');
 cd(path_name)
 filepath = [path_name filesep file_name];
@@ -29,7 +29,7 @@ movingImg = uint8(movingImg/max(max(movingImg))*255);
 % use control points GUI to select reference points
 [movingPoints, fixedPoints] = cpselect(movingImg, fixedImg, 'wait',true);
 
-% make the transform (projective or affine?)
+% make the transform (projective or affine)
 tform = fitgeotrans(movingPoints, fixedPoints, 'projective');
 inv_tform = fitgeotrans(fixedPoints, movingPoints, 'projective');
 
