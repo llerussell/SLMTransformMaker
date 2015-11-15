@@ -1,7 +1,7 @@
 # SLMTransformMaker
 Matlab script to calculate transform required to map 2P space onto SLM space.
 
-1. Calibrate uncaging galvos using zero order spot. This will ensure the centre of SLM space is the centre of 2P imaging space.
+1. Calibrate uncaging galvos using zero order spot. This will ensure the centre of SLM space is the centre of 2P imaging space. (optional)
 2. Burn multiple spots onto fluorescent slide (simultaneously or sequentially) for ~60 seconds, take a 2P image of the burnt slide
 3. Register the SLM targets image and the 2P burnt spot image
 4. Use the saved transform when making all future [SLM phase masks](https://github.com/llerussell/SLMPhaseMaskMaker_MatlabCUDA)
