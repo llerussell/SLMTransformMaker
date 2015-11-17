@@ -7,7 +7,7 @@ Matlab script to calculate transform required to map 2P space onto SLM space.
 4. Use the saved transform when making all future [SLM phase masks](https://github.com/llerussell/SLMPhaseMaskMaker_MatlabCUDA)
 
 
-![Imgur](http://i.imgur.com/OHcvAc3.jpg)
+![Imgur](http://i.imgur.com/GnmjOWt.jpg)
 
 Example application of calculated transform:
 ``` matlab
